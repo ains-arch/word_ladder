@@ -1,4 +1,7 @@
-#!/bin/python3
+#!/bin/python3i
+
+from collections import deque
+import copy
 
 
 def word_ladder(start_word, end_word, dictionary_file='words5.dict'):
@@ -29,6 +32,32 @@ def word_ladder(start_word, end_word, dictionary_file='words5.dict'):
     the function returns `None`.
     '''
 
+    with open(dictionary_file, 'r') as f:
+        test = f.read()
+    dictionary = test.splitlines()
+
+    if start_word == end_word:
+        return [start_word]
+
+    stack = []
+    stack.append(start_word)
+    queue = deque()
+    queue.append(stack)
+
+    while len(queue) != 0:
+        cur_stack = queue.popleft()
+        dict_copy = dictionary.copy()
+        for word in dict_copy:
+            if _adjacent(word, cur_stack[-1]):
+                if word == end_word:
+                    cur_stack.append(word)
+                    return cur_stack
+                stack_copy = copy.copy(cur_stack)
+                stack_copy.append(word)
+                queue.append(stack_copy)
+                dictionary = [x for x in dictionary if (x != word)]
+    return None
+
 
 def verify_word_ladder(ladder):
     '''
@@ -41,6 +70,15 @@ def verify_word_ladder(ladder):
     False
     '''
 
+    if ladder == []:
+        return False
+    for i in range(len(ladder)-1):
+        if _adjacent(ladder[i], ladder[i+1]):
+            pass
+        else:
+            return False
+    return True
+
 
 def _adjacent(word1, word2):
     '''
@@ -52,3 +90,10 @@ def _adjacent(word1, word2):
     >>> _adjacent('stone','money')
     False
     '''
+    if len(word1) != len(word2):
+        return False
+    checker = 0
+    for i in range(len(word1)):
+        if word1[i] != word2[i]:
+            checker += 1
+    return checker == 1
